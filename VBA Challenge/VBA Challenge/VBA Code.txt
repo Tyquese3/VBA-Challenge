@@ -1,0 +1,89 @@
+
+Sub Q1()
+    Dim ws As Worksheet
+    Dim lastRow As Long
+    Dim i As Long
+    Dim ticker As String
+    Dim quarterlyChange As Double
+    Dim percentageChange As Double
+    Dim totalStockVolume As Double
+    Dim volume As Double
+    Dim openPrice As Double
+    Dim closePrice As Double
+    Dim greatestIncrease As Double
+    Dim greatestDecrease As Double
+    Dim greatestVolume As Double
+    Dim greatestIncreaseTicker As String
+    Dim greatestDecreaseTicker As String
+    Dim greatestVolumeTicker As String
+    
+    
+    For Each ws In ThisWorkbook.Worksheets
+        lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
+        
+        ' Output headers'
+    ws.Range("I1").Value = "Ticker"
+    ws.Range("J1").Value = "Quarterly Change"
+    ws.Range("K1").Value = "Percent Change"
+    ws.Range("L1").Value = "Total Stock Volume"
+    ws.Range("P1").Value = "Ticker"
+    ws.Range("Q1").Value = "Value"
+    ws.Range("O2").Value = "Greatest % Increase"
+    ws.Range("O3").Value = "Greatest % Decrease"
+    ws.Range("O4").Value = "Greatest Total Volume"
+    
+        ' Reset greatest values for each worksheet'
+        greatestIncrease = -999999
+        greatestDecrease = 999999
+        greatestVolume = 0
+        totalStockVolume = 0
+        
+        For i = 2 To lastRow
+            ticker = ws.Cells(i, 1).Value
+            openPrice = ws.Cells(i, 3).Value
+            volume = ws.Cells(i, 7).Value
+            closePrice = ws.Cells(i, 6).Value
+            
+            totalStockVolume = totalStockVolume + volume
+            
+            quarterlyChange = closePrice - openPrice
+            
+            If openPrice <> 0 Then
+                percentageChange = (quarterlyChange / openPrice) * 100
+            Else
+                percentageChange = 0
+            End If
+            ws.Cells(i, 9).Value = ticker
+            ws.Cells(i, 10).Value = quarterlyChange
+            ws.Cells(i, 11).Value = percentageChange
+            ws.Cells(i, 12).Value = totalStockVolume
+            
+            If percentageChange > greatestIncrease Then
+                greatestIncrease = percentageChange
+                greatestIncreaseTicker = ticker
+            End If
+            
+            If percentageChange < greatestDecrease Then
+                greatestDecrease = percentageChange
+                greatestDecreaseTicker = ticker
+            End If
+            
+            If volume > greatestVolume Then
+                greatestVolume = volume
+                greatestVolumeTicker = ticker
+            End If
+        Next i
+        
+        ' Write the greatest values to the output cells'
+        ws.Range("P2").Value = greatestIncreaseTicker
+        ws.Range("Q2").Value = greatestIncrease
+        ws.Range("P3").Value = greatestDecreaseTicker
+        ws.Range("Q3").Value = greatestDecrease
+        ws.Range("P4").Value = greatestVolumeTicker
+        ws.Range("Q4").Value = greatestVolume
+    Next ws
+    
+    MsgBox "Greatest % Increase: " & greatestIncreaseTicker & " (" & greatestIncrease & "%)" & vbCrLf & _
+           "Greatest % Decrease: " & greatestDecreaseTicker & " (" & greatestDecrease & "%)" & vbCrLf & _
+           "Greatest Total Volume: " & greatestVolumeTicker & " (" & greatestVolume & ")"
+End Sub
